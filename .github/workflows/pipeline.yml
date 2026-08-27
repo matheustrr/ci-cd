@@ -1,0 +1,77 @@
+# Nome do workflow que aparece na interface do GitHub Actions
+name: "Lab 01 - Estrutura de Diretórios e Arquivos"
+
+# Define quando o workflow será executado
+on:
+  push:
+    branches: [ main ]
+
+  # Permite execução manual pela interface
+  workflow_dispatch:
+
+    # Variáveis de ambiente globais
+env:
+  NODE_VERSION: "18"
+
+# Define os trabalhos
+jobs:
+  demonstrar-estrutura:
+    name: "Demonstrar Estrutura Básica"
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Faz checkout do código
+    - name: Checkout do código
+      uses: actions/checkout@v4
+
+    # Step 2: Lista os arquivos
+    - name: Mostrar estrutura .github/workflows
+      run: |
+        echo "=== ESTRUTURA DO DIRETÓRIO .github/workflows ==="
+        ls -la .github/workflows/
+        echo ""
+        echo "Total de workflows: $(ls -1 .github/workflows/*.y*ml 2>/dev/null | wc -l)"
+
+    # Step 3: Mostra os elementos básicos
+    - name: Elementos obrigatórios do workflow
+      run: |
+        echo "=== ELEMENTOS OBRIGATÓRIOS ==="
+        echo "1. name: Nome do workflow"
+        echo "2. on: Eventos de trigger"
+        echo "3. jobs: Tarefas a executar"
+
+    # Step 4: Variáveis e contextos
+    - name: Variáveis e contextos
+      run: |
+        echo "=== VARIÁVEIS E CONTEXTOS ==="
+        echo "Variável env: ${{ env.NODE_VERSION }}"
+        echo "Repositório: ${{ github.repository }}"
+        echo "Branch: ${{ github.ref_name }}"
+        echo "Actor: ${{ github.actor }}"
+
+    # Step 5: Validação da estrutura
+    - name: Validar estrutura
+      run: |
+        echo "=== VALIDANDO ESTRUTURA ==="
+
+        test -d .github/workflows || {
+          echo "ERRO: Diretório .github/workflows não existe!"
+          exit 1
+        }
+
+        workflow_count=$(find .github/workflows -type f \( -name "*.yml" -o -name "*.yaml" \) | wc -l)
+
+        if [ "$workflow_count" -eq 0 ]; then
+          echo "ERRO: Nenhum workflow encontrado!"
+          exit 1
+        fi
+
+        echo "OK: Diretório .github/workflows encontrado."
+        echo "OK: $workflow_count workflow(s) encontrado(s)."
+
+    # Step 6: Finalização
+    - name: Pipeline concluído
+      run: |
+        echo "================================"
+        echo " CI EXECUTADO COM SUCESSO!"
+        echo "================================"
